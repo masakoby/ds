@@ -66,6 +66,8 @@ namespace kb
 		//	
 		int getImage(cv::Mat& mat1, int64_t x1, int64_t y1, int64_t w, int64_t h, int level);
 
+		//
+		int get_associated_image(cv::Mat& mat1);
 
 
 	public:

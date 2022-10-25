@@ -130,6 +130,55 @@ void kb::COpenslide::update_property()
 
 	
 }
+//
+int kb::COpenslide::get_associated_image(cv::Mat& mat1)
+{
+	if (m_handle == NULL)
+		return -1;
+
+	int rtn_label = -1;
+	if (rtn_label <0) {
+		int64_t w = 0, h = 0;
+		openslide_get_associated_image_dimensions(m_handle, "macro", &w, &h);
+		std::cout << "macro: " << w << " " << h << std::endl;
+		if (w > 0 && h > 0) {
+			cv::Size sz(w, h);
+			mat1 = cv::Mat(sz, CV_8UC3);
+
+			std::vector< uint32_t> img;
+			img.resize(w * h);
+			openslide_read_associated_image(m_handle, "macro", &(img[0]));
+
+			for (int j = 0; j < sz.height; j++) {
+				int jw = j * sz.width;
+				for (int i = 0; i < sz.width; i++) {
+					uint32_t a = img[i + jw];
+					cv::Vec3b a2;
+					a2[2] = (a >> 16) & 0xff;
+					a2[1] = (a >> 8) & 0xff;
+					a2[0] = a & 0xff;
+
+					mat1.at<cv::Vec3b>(j, i) = a2;
+				}
+			}
+
+
+			rtn_label = 1;
+		}
+	}
+	if (rtn_label < 0) {
+		int64_t w = 0, h = 0;
+		openslide_get_associated_image_dimensions(m_handle, "label", &w, &h);
+		std::cout << "label: " << w << " " << h << std::endl;
+	}
+	if (rtn_label < 0) {
+		int64_t w = 0, h = 0;
+		openslide_get_associated_image_dimensions(m_handle, "thumbnail", &w, &h);
+		std::cout << "thumbnail: " << w << " " << h << std::endl;
+	}
+
+	return rtn_label;
+}
 
 
 //
